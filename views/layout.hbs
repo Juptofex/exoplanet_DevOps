@@ -10,7 +10,7 @@
 <body>
   <header>
     <img src="/images/logo.png" alt="logo">
-    <nav>
+    <nav id="test">
       <ul>
         <li> <a href="/"> Accueil</a> </li>
         <li> <a href="/exoplanets"> Exoplanètes</a> </li>
@@ -25,11 +25,24 @@
       {{/if}}
       </ul>
     </nav>
+    <form id="color-form" class="white">
+      <label for="color">Choose header color:</label>
+      <input type="color" id="color" name="color">
+      <input type="submit" value="Apply">
+    </form>
   </header>
   {{{body}}}
   <footer>
     Site sponsorisé par Exo1000.
   </footer>
+
+  <script>
+    document.getElementById('color-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const color = document.getElementById('color').value;
+      document.getElementById('test').style.backgroundColor = color;
+    });
+  </script>
 </body>
 
 </html>
