@@ -22,36 +22,7 @@ router.post('/login', (req, res, next) => {
     // User in DB ? -> return the record of the user if found
     const userFound = User.find(req.body.userLogin);
     console.log("User found" + JSON.stringify(userFound));
-    if (userFound) {
-        if (userFound.active == false) {
-            req.session.errors = "Compte désactivé";
-            res.redirect('/users');
-        }
-        else {
-            if (bcrypt.compareSync(req.body.userPassword, userFound.password)) {
-                console.log("password correct");
-                req.session.login = req.body.userLogin;
-                req.session.connected = true;
-                if (userFound.admin) {
-                    req.session.admin = true;
-                    res.redirect('/admin');
-                } else {
-                    req.session.admin = false;
-                    res.redirect('/members');
-                }
-            }
-            else {
-                console.log("bad password");
-                req.session.errors = "Mot de passe incorrect";
-                res.redirect('/users');
-            }
-        }
-    }
-    else {
-        console.log("bad user");
-        req.session.errors = "Utilisateur inconnu";
-        res.redirect('/users');
-    }
+    handleUserLogin(userFound, req, res);
 });
 
 router.get('/logout', (req, res, next) => {
@@ -96,3 +67,52 @@ router.post('/add', (req, res, next) => {
 });
 
 module.exports = router;
+
+function handleUserLogin(userFound, req, res) {
+    if (userFound) {
+        if (userFound.active == false) {
+            handleDisabledAccount(req, res);
+        }
+        else {
+            if (bcrypt.compareSync(req.body.userPassword, userFound.password)) {
+                handleLoginSuccess(req, userFound, res);
+            }
+            else {
+                newFunction(req, res);
+            }
+        }
+    }
+    else {
+        handleUnknownUser(req, res);
+    }
+}
+
+function handleDisabledAccount(req, res) {
+    req.session.errors = "Compte désactivé";
+    res.redirect('/users');
+}
+
+function handleUnknownUser(req, res) {
+    console.log("bad user");
+    req.session.errors = "Utilisateur inconnu";
+    res.redirect('/users');
+}
+
+function newFunction(req, res) {
+    console.log("bad password");
+    req.session.errors = "Mot de passe incorrect";
+    res.redirect('/users');
+}
+
+function handleLoginSuccess(req, userFound, res) {
+    console.log("password correct");
+    req.session.login = req.body.userLogin;
+    req.session.connected = true;
+    if (userFound.admin) {
+        req.session.admin = true;
+        res.redirect('/admin');
+    } else {
+        req.session.admin = false;
+        res.redirect('/members');
+    }
+}
